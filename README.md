@@ -1,12 +1,11 @@
 # 📘 Mi vocabulario de inglés
 
 App de Streamlit para guardar las palabras de inglés que aprendo (finanzas y negocios):
-palabra, significado en español, categoría gramatical y una frase de ejemplo.
+palabra, significado en español, categoría gramatical y una frase de ejemplo con su traducción.
 
-- **Mis palabras**: tabla con buscador y filtro por categoría.
-- **Por categoría**: las palabras agrupadas (noun, verb, phrasal verb, expression…) con su ejemplo.
+- **Por aprender**: tarjetas que se voltean al tocarlas (frente: palabra; reverso: significado, categoría, ejemplo y su traducción). Botón ✅ Aprendida.
+- **Aprendidas**: carpeta con las palabras que ya sabes (puedes devolverlas a estudiar).
 - **Agregar palabra**: formulario para sumar palabras nuevas.
-- **Repaso**: tarjetas para practicar.
 
 Las palabras viven en `palabras.csv`.
 

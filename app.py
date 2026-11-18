@@ -1,9 +1,7 @@
-"""Mi vocabulario de inglés: app de Streamlit para guardar las palabras que aprendo."""
+"""Mi vocabulario de inglés: tarjetas que se voltean para aprender palabras de finanzas."""
 
 import base64
-import io
-import random
-from datetime import date
+import html
 from pathlib import Path
 
 import pandas as pd
@@ -11,7 +9,7 @@ import requests
 import streamlit as st
 
 ARCHIVO = Path(__file__).parent / "palabras.csv"
-COLUMNAS = ["palabra", "significado", "categoria", "ejemplo", "fecha"]
+COLUMNAS = ["palabra", "significado", "categoria", "ejemplo", "ejemplo_es", "aprendida"]
 CATEGORIAS = [
     "noun", "verb", "phrasal verb", "adjective", "adverb",
     "expression", "preposition", "connector",
@@ -21,8 +19,40 @@ NOMBRE_ES = {
     "adjective": "adjetivo", "adverb": "adverbio", "expression": "expresión",
     "preposition": "preposición", "connector": "conector",
 }
+COLOR = {
+    "noun": "#2563eb", "verb": "#16a34a", "phrasal verb": "#9333ea",
+    "adjective": "#ea580c", "adverb": "#0891b2", "expression": "#db2777",
+    "preposition": "#65a30d", "connector": "#ca8a04",
+}
+POR_FILA = 3
 
 st.set_page_config(page_title="Mi vocabulario de inglés", page_icon="📘", layout="wide")
+
+ESTILO = """
+<style>
+.flip { perspective: 1000px; height: 230px; margin-bottom: 6px; }
+.flip input { display: none; }
+.flip label { display: block; width: 100%; height: 100%; cursor: pointer; }
+.cara-box { position: relative; width: 100%; height: 100%;
+  transition: transform .6s; transform-style: preserve-3d; }
+.flip input:checked + label .cara-box { transform: rotateY(180deg); }
+.cara { position: absolute; inset: 0; backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; border-radius: 16px; padding: 18px;
+  box-sizing: border-box; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,.12); font-family: sans-serif; }
+.frente { color: #fff; }
+.frente .pal { font-size: 1.7rem; font-weight: 700; }
+.frente .tip { font-size: .8rem; opacity: .8; margin-top: 12px; }
+.reverso { background: #fff; color: #1f2937; transform: rotateY(180deg);
+  border: 2px solid var(--c); justify-content: flex-start; overflow-y: auto; }
+.reverso .sig { font-size: 1.25rem; font-weight: 700; margin: 4px 0 6px; }
+.reverso .cat { display: inline-block; background: var(--c); color: #fff;
+  border-radius: 999px; padding: 2px 10px; font-size: .75rem; }
+.reverso .en { font-style: italic; margin-top: 12px; font-size: .95rem; }
+.reverso .es { color: #6b7280; font-size: .9rem; margin-top: 4px; }
+</style>
+"""
 
 
 # ---------- Guardar y leer ----------
@@ -39,6 +69,9 @@ def leer_palabras() -> pd.DataFrame:
         df = pd.read_csv(ARCHIVO, dtype=str).fillna("")
     else:
         df = pd.DataFrame(columns=COLUMNAS)
+    for col in COLUMNAS:
+        if col not in df.columns:
+            df[col] = "no" if col == "aprendida" else ""
     return df[COLUMNAS]
 
 
@@ -54,55 +87,81 @@ def guardar_en_github(contenido: str) -> None:
     actual = requests.get(url, headers=cabeceras, params={"ref": rama}, timeout=15)
     sha = actual.json().get("sha") if actual.status_code == 200 else None
     datos = {
-        "message": "Agregar palabra desde la app",
+        "message": "Actualizar palabras desde la app",
         "content": base64.b64encode(contenido.encode("utf-8")).decode("ascii"),
         "branch": rama,
     }
     if sha:
         datos["sha"] = sha
-    r = requests.put(url, headers=cabeceras, json=datos, timeout=15)
-    r.raise_for_status()
+    requests.put(url, headers=cabeceras, json=datos, timeout=15).raise_for_status()
 
 
-def guardar_palabras(df: pd.DataFrame) -> str:
+def guardar_palabras(df: pd.DataFrame) -> None:
     contenido = df[COLUMNAS].to_csv(index=False)
     ARCHIVO.write_text(contenido, encoding="utf-8")
     if github_configurado():
         try:
             guardar_en_github(contenido)
-            return "github"
         except Exception as e:  # noqa: BLE001
             st.error(f"No se pudo guardar en GitHub: {e}")
-    return "local"
 
 
-# ---------- Interfaz ----------
+def marcar(df: pd.DataFrame, idx, valor: str) -> None:
+    df.loc[idx, "aprendida"] = valor
+    guardar_palabras(df)
+    st.rerun()
 
-df = leer_palabras()
 
-st.title("📘 Mi vocabulario de inglés")
-st.caption("Palabras de finanzas y negocios que voy aprendiendo, con su significado, categoría y un ejemplo.")
+# ---------- Tarjetas ----------
 
-c1, c2, c3 = st.columns(3)
-c1.metric("Palabras guardadas", len(df))
-c2.metric("Categorías", df["categoria"].nunique())
-hoy = date.today().isoformat()
-c3.metric("Agregadas hoy", int((df["fecha"] == hoy).sum()))
+def tarjeta_html(idx, fila) -> str:
+    e = lambda t: html.escape(str(t))  # noqa: E731
+    color = COLOR.get(fila["categoria"], "#475569")
+    nombre = NOMBRE_ES.get(fila["categoria"], fila["categoria"])
+    return f"""
+<div class="flip" style="--c:{color}">
+  <input type="checkbox" id="t{idx}">
+  <label for="t{idx}"><div class="cara-box">
+    <div class="cara frente" style="background:{color}">
+      <div class="pal">{e(fila['palabra'])}</div>
+      <div class="tip">👆 Toca para ver el significado</div>
+    </div>
+    <div class="cara reverso">
+      <span class="cat">{e(fila['categoria'])} · {e(nombre)}</span>
+      <div class="sig">{e(fila['significado'])}</div>
+      <div class="en">“{e(fila['ejemplo'])}”</div>
+      <div class="es">{e(fila['ejemplo_es'])}</div>
+    </div>
+  </div></label>
+</div>"""
 
-tab_lista, tab_categorias, tab_agregar, tab_repaso = st.tabs(
-    ["📋 Mis palabras", "🗂️ Por categoría", "➕ Agregar palabra", "🎯 Repaso"]
-)
 
-# --- Lista con filtros ---
-with tab_lista:
+def mostrar_tarjetas(df: pd.DataFrame, vista: pd.DataFrame, aprendidas: bool) -> None:
+    if vista.empty:
+        st.info("No hay palabras aquí todavía." if not aprendidas else
+                "Aún no marcaste palabras como aprendidas. ¡Tú puedes! 💪")
+        return
+    filas = list(vista.iterrows())
+    for i in range(0, len(filas), POR_FILA):
+        cols = st.columns(POR_FILA)
+        for col, (idx, fila) in zip(cols, filas[i:i + POR_FILA]):
+            with col:
+                st.html(ESTILO + tarjeta_html(idx, fila))
+                if aprendidas:
+                    if st.button("↩️ Volver a estudiar", key=f"v{idx}", width="stretch"):
+                        marcar(df, idx, "no")
+                elif st.button("✅ Aprendida", key=f"a{idx}", width="stretch"):
+                    marcar(df, idx, "si")
+
+
+def filtros(df: pd.DataFrame, clave: str) -> pd.DataFrame:
     f1, f2 = st.columns([1, 2])
-    opciones = sorted(df["categoria"].unique())
     elegidas = f1.multiselect(
-        "Filtrar por categoría", opciones,
-        format_func=lambda c: f"{c} ({NOMBRE_ES.get(c, c)})",
+        "Filtrar por categoría", sorted(df["categoria"].unique()),
+        format_func=lambda c: f"{c} ({NOMBRE_ES.get(c, c)})", key=f"cat_{clave}", placeholder="Todas",
     )
-    buscar = f2.text_input("Buscar (en inglés o español)")
-    vista = df.copy()
+    buscar = f2.text_input("Buscar (en inglés o español)", key=f"bus_{clave}")
+    vista = df
     if elegidas:
         vista = vista[vista["categoria"].isin(elegidas)]
     if buscar:
@@ -111,93 +170,64 @@ with tab_lista:
             vista["palabra"].str.lower().str.contains(b, regex=False)
             | vista["significado"].str.lower().str.contains(b, regex=False)
         ]
-    st.dataframe(
-        vista.sort_values("palabra"),
-        hide_index=True,
-        width="stretch",
-        column_config={
-            "palabra": "Palabra",
-            "significado": "Significado",
-            "categoria": "Categoría",
-            "ejemplo": st.column_config.TextColumn("Ejemplo", width="large"),
-            "fecha": "Fecha",
-        },
-    )
-    st.download_button(
-        "⬇️ Descargar mis palabras (CSV)",
-        df.to_csv(index=False).encode("utf-8"),
-        file_name="palabras.csv",
-        mime="text/csv",
-    )
+    return vista.sort_values("palabra")
 
-# --- Por categoría ---
-with tab_categorias:
-    st.write("Cada categoría gramatical con sus palabras y un ejemplo de cada una.")
-    for cat in sorted(df["categoria"].unique()):
-        grupo = df[df["categoria"] == cat].sort_values("palabra")
-        with st.expander(f"**{cat}** · {NOMBRE_ES.get(cat, cat)} · {len(grupo)} palabras"):
-            for _, fila in grupo.iterrows():
-                st.markdown(
-                    f"**{fila['palabra']}** = {fila['significado']}  \n"
-                    f"<span style='opacity:0.75'>✏️ <i>{fila['ejemplo']}</i></span>",
-                    unsafe_allow_html=True,
-                )
 
-# --- Agregar ---
+# ---------- Página ----------
+
+df = leer_palabras()
+por_aprender = df[df["aprendida"] != "si"]
+ya_aprendidas = df[df["aprendida"] == "si"]
+
+st.title("📘 Mi vocabulario de inglés")
+c1, c2, c3 = st.columns(3)
+c1.metric("Por aprender", len(por_aprender))
+c2.metric("Aprendidas", len(ya_aprendidas))
+c3.metric("Total", len(df))
+
+tab_estudiar, tab_aprendidas, tab_agregar = st.tabs(
+    [f"📚 Por aprender ({len(por_aprender)})",
+     f"🏆 Aprendidas ({len(ya_aprendidas)})",
+     "➕ Agregar palabra"]
+)
+
+with tab_estudiar:
+    st.caption("Toca una tarjeta para voltearla. Cuando ya sepas la palabra, toca ✅ Aprendida.")
+    mostrar_tarjetas(df, filtros(por_aprender, "estudiar"), aprendidas=False)
+
+with tab_aprendidas:
+    st.caption("Tu carpeta de palabras aprendidas. Puedes repasarlas o devolverlas a estudiar.")
+    mostrar_tarjetas(df, filtros(ya_aprendidas, "aprendidas"), aprendidas=True)
+
 with tab_agregar:
     with st.form("nueva", clear_on_submit=True):
         palabra = st.text_input("Palabra en inglés *")
-        significado = st.text_input("Significado en español *")
+        significado = st.text_input("Significado en español * (si tiene varios, sepáralos con /)")
         categoria = st.selectbox(
             "Categoría gramatical *", CATEGORIAS,
             format_func=lambda c: f"{c} ({NOMBRE_ES[c]})",
         )
-        ejemplo = st.text_area("Frase de ejemplo en inglés *", height=80)
+        ejemplo = st.text_input("Frase de ejemplo en inglés *")
+        ejemplo_es = st.text_input("Traducción del ejemplo al español *")
         enviar = st.form_submit_button("Guardar palabra", type="primary")
     if enviar:
-        if not (palabra.strip() and significado.strip() and ejemplo.strip()):
+        campos = [palabra, significado, ejemplo, ejemplo_es]
+        if not all(c.strip() for c in campos):
             st.warning("Completa todos los campos.")
         elif palabra.strip().lower() in df["palabra"].str.lower().values:
             st.warning(f"“{palabra}” ya está en tu lista.")
         else:
             nueva = pd.DataFrame([{
                 "palabra": palabra.strip(), "significado": significado.strip(),
-                "categoria": categoria, "ejemplo": ejemplo.strip(), "fecha": hoy,
+                "categoria": categoria, "ejemplo": ejemplo.strip(),
+                "ejemplo_es": ejemplo_es.strip(), "aprendida": "no",
             }])
-            df = pd.concat([df, nueva], ignore_index=True)
-            donde = guardar_palabras(df)
-            if donde == "github":
-                st.success(f"✅ “{palabra}” guardada en GitHub.")
-            else:
-                st.success(f"✅ “{palabra}” guardada.")
-                if not github_configurado():
-                    st.info(
-                        "Ojo: sin la conexión a GitHub configurada, en internet la palabra "
-                        "puede borrarse cuando la app se reinicie. Descarga el CSV como respaldo."
-                    )
+            guardar_palabras(pd.concat([df, nueva], ignore_index=True))
+            st.success(f"✅ “{palabra}” guardada.")
             st.rerun()
 
-# --- Repaso tipo tarjetas ---
-with tab_repaso:
-    st.write("Mira la palabra, piensa el significado y luego revisa la respuesta.")
-    if df.empty:
-        st.info("Todavía no hay palabras.")
-    else:
-        cat_repaso = st.selectbox("Categoría", ["todas"] + sorted(df["categoria"].unique()))
-        base = df if cat_repaso == "todas" else df[df["categoria"] == cat_repaso]
-        if "tarjeta" not in st.session_state or st.session_state.tarjeta not in base.index:
-            st.session_state.tarjeta = random.choice(list(base.index))
-            st.session_state.ver = False
-        fila = df.loc[st.session_state.tarjeta]
-        st.markdown(f"## {fila['palabra']}")
-        st.caption(fila["categoria"])
-        b1, b2 = st.columns(2)
-        if b1.button("Ver respuesta"):
-            st.session_state.ver = True
-        if b2.button("Siguiente palabra ➡️"):
-            st.session_state.tarjeta = random.choice(list(base.index))
-            st.session_state.ver = False
-            st.rerun()
-        if st.session_state.ver:
-            st.success(f"**{fila['significado']}**")
-            st.markdown(f"✏️ *{fila['ejemplo']}*")
+    st.download_button(
+        "⬇️ Descargar respaldo de mis palabras (CSV)",
+        df.to_csv(index=False).encode("utf-8"),
+        file_name="palabras.csv", mime="text/csv",
+    )

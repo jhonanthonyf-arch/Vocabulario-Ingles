@@ -1,34 +1,34 @@
-palabra,significado,categoria,ejemplo,fecha
-cash flow,flujo de caja,noun,Our cash flow improved this quarter.,2026-11-16
-budget,presupuesto,noun,We need to prepare the budget for next year.,2026-11-16
-forecast,pronóstico / proyección,noun,The sales forecast for March is too optimistic.,2026-11-16
-debt,deuda,noun,The company paid part of its debt in October.,2026-11-16
-assets,activos,noun,Total assets increased by 10% this year.,2026-11-16
-liabilities,pasivos,noun,Current liabilities are higher than last year.,2026-11-18
-balance sheet,balance general,noun,The balance sheet shows assets and liabilities.,2026-11-18
-income statement,estado de resultados,noun,I prepare the income statement every month.,2026-11-18
-earnings,ganancias / utilidades,noun,Earnings grew 5% compared to last quarter.,2026-11-18
-shareholders,accionistas,noun,The shareholders will receive a dividend this year.,2026-11-18
-overhead,gastos generales,noun,We need to reduce overhead in the office.,2026-11-18
-accounts receivable,cuentas por cobrar,noun,Accounts receivable went up because clients pay late.,2026-11-18
-accounts payable,cuentas por pagar,noun,We pay our accounts payable every 30 days.,2026-11-18
-break-even point,punto de equilibrio,noun,We will reach the break-even point in June.,2026-11-18
-write-off,castigo / cancelación contable,noun,The company recorded a write-off of bad debt.,2026-11-18
-revenue,ingresos (ventas totales),noun,Revenue was 2 million dollars last year.,2026-11-18
-expenses,gastos,noun,Our expenses went down in September.,2026-11-18
-profit,utilidad / ganancia (después de gastos),noun,The company made a profit of 200 thousand dollars.,2026-11-18
-loss,pérdida,noun,The store had a loss in the first quarter.,2026-11-18
-profit margin,margen de utilidad,noun,Our profit margin is 15%.,2026-11-18
-net profit margin,margen de utilidad neta,noun,The net profit margin fell to 8%.,2026-11-18
-gross margin,margen bruto,noun,Gross margin is revenue minus cost of goods sold.,2026-11-18
-invoice,factura,noun,I sent the invoice to the client yesterday.,2026-11-18
-go up (went up),subir / aumentar,phrasal verb,Costs went up last month.,2026-11-18
-go down (went down),bajar / disminuir,phrasal verb,Sales went down in December.,2026-11-18
-cut down on,recortar / reducir el consumo de,phrasal verb,We need to cut down on travel expenses.,2026-11-18
-pay off,pagar por completo (una deuda),phrasal verb,We will pay off the loan next year.,2026-11-18
-make a profit,obtener ganancias,expression,If we sell more we will make a profit.,2026-11-18
-charge a late fee,cobrar un recargo por mora,expression,We charge a late fee if the client pays after 30 days.,2026-11-18
-sell less,vender menos,expression,If prices go up we will sell less.,2026-11-18
-hire,contratar,verb,We will hire two new analysts.,2026-11-18
-improve,mejorar,verb,We want to improve our cash flow.,2026-11-18
-reduce,reducir,verb,The manager wants to reduce costs by 10%.,2026-11-18
+palabra,significado,categoria,ejemplo,ejemplo_es,aprendida
+cash flow,flujo de caja,noun,Our cash flow improved this quarter.,Nuestro flujo de caja mejoró este trimestre.,no
+budget,presupuesto,noun,We need to prepare the budget for next year.,Necesitamos preparar el presupuesto para el próximo año.,no
+forecast,pronóstico / proyección,noun,The sales forecast for March is too optimistic.,El pronóstico de ventas para marzo es demasiado optimista.,no
+debt,deuda,noun,The company paid part of its debt in October.,La empresa pagó parte de su deuda en octubre.,no
+assets,activos,noun,Total assets increased by 10% this year.,Los activos totales aumentaron 10% este año.,no
+liabilities,pasivos,noun,Current liabilities are higher than last year.,Los pasivos corrientes son más altos que el año pasado.,no
+balance sheet,balance general,noun,The balance sheet shows assets and liabilities.,El balance general muestra los activos y los pasivos.,no
+income statement,estado de resultados,noun,I prepare the income statement every month.,Preparo el estado de resultados cada mes.,no
+earnings,ganancias / utilidades,noun,Earnings grew 5% compared to last quarter.,Las utilidades crecieron 5% comparado con el trimestre pasado.,no
+shareholders,accionistas,noun,The shareholders will receive a dividend this year.,Los accionistas recibirán un dividendo este año.,no
+overhead,gastos generales,noun,We need to reduce overhead in the office.,Necesitamos reducir los gastos generales en la oficina.,no
+accounts receivable,cuentas por cobrar,noun,Accounts receivable went up because clients pay late.,Las cuentas por cobrar subieron porque los clientes pagan tarde.,no
+accounts payable,cuentas por pagar,noun,We pay our accounts payable every 30 days.,Pagamos nuestras cuentas por pagar cada 30 días.,no
+break-even point,punto de equilibrio,noun,We will reach the break-even point in June.,Llegaremos al punto de equilibrio en junio.,no
+write-off,castigo / cancelación contable,noun,The company recorded a write-off of bad debt.,La empresa registró un castigo de deudas incobrables.,no
+revenue,ingresos (ventas totales),noun,Revenue was 2 million dollars last year.,Los ingresos fueron 2 millones de dólares el año pasado.,no
+expenses,gastos,noun,Our expenses went down in September.,Nuestros gastos bajaron en septiembre.,no
+profit,utilidad / ganancia (después de gastos),noun,The company made a profit of 200 thousand dollars.,La empresa obtuvo una utilidad de 200 mil dólares.,no
+loss,pérdida,noun,The store had a loss in the first quarter.,La tienda tuvo una pérdida en el primer trimestre.,no
+profit margin,margen de utilidad,noun,Our profit margin is 15%.,Nuestro margen de utilidad es 15%.,no
+net profit margin,margen de utilidad neta,noun,The net profit margin fell to 8%.,El margen de utilidad neta bajó a 8%.,no
+gross margin,margen bruto,noun,Gross margin is revenue minus cost of goods sold.,El margen bruto es los ingresos menos el costo de ventas.,no
+invoice,factura,noun,I sent the invoice to the client yesterday.,Le envié la factura al cliente ayer.,no
+go up (went up),subir / aumentar,phrasal verb,Costs went up last month.,Los costos subieron el mes pasado.,no
+go down (went down),bajar / disminuir,phrasal verb,Sales went down in December.,Las ventas bajaron en diciembre.,no
+cut down on,recortar / reducir el consumo de,phrasal verb,We need to cut down on travel expenses.,Necesitamos recortar los gastos de viaje.,no
+pay off,pagar por completo (una deuda),phrasal verb,We will pay off the loan next year.,Terminaremos de pagar el préstamo el próximo año.,no
+make a profit,obtener ganancias,expression,If we sell more we will make a profit.,"Si vendemos más, obtendremos ganancias.",no
+charge a late fee,cobrar un recargo por mora,expression,We charge a late fee if the client pays after 30 days.,Cobramos un recargo por mora si el cliente paga después de 30 días.,no
+sell less,vender menos,expression,If prices go up we will sell less.,"Si los precios suben, venderemos menos.",no
+hire,contratar,verb,We will hire two new analysts.,Contrataremos a dos analistas nuevos.,no
+improve,mejorar,verb,We want to improve our cash flow.,Queremos mejorar nuestro flujo de caja.,no
+reduce,reducir,verb,The manager wants to reduce costs by 10%.,El gerente quiere reducir los costos en 10%.,no
