@@ -12,7 +12,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 ARCHIVO = Path(__file__).parent / "palabras.csv"
-COLUMNAS = ["palabra", "significado", "categoria", "ejemplo", "ejemplo_es", "aprendida"]
+CARPETA_ICONOS = Path(__file__).parent / "iconos"
+COLUMNAS = ["palabra", "significado", "categoria", "ejemplo", "ejemplo_es", "aprendida", "icono"]
 CATEGORIAS = [
     "noun", "verb", "phrasal verb", "adjective", "adverb",
     "expression", "preposition", "connector",
@@ -63,8 +64,11 @@ body { margin: 0; padding: 4px; }
   justify-content: center; align-items: center; text-align: center;
   box-shadow: 0 2px 10px rgba(0,0,0,.12); font-family: sans-serif; }
 .frente { color: #fff; }
-.frente .pal { font-size: 1.7rem; font-weight: 700; }
-.frente .tip { font-size: .8rem; opacity: .8; margin-top: 12px; }
+.frente .img { width: 64px; height: 64px; border-radius: 999px; margin-bottom: 12px;
+  background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; }
+.frente .img svg { width: 34px; height: 34px; color: #fff; }
+.frente .pal { font-size: 1.6rem; font-weight: 700; line-height: 1.15; }
+.frente .tip { font-size: .75rem; opacity: .75; margin-top: 10px; }
 .reverso { background: #fff; color: #1f2937; transform: rotateY(180deg);
   border: 2px solid var(--c); justify-content: flex-start; overflow-y: auto; }
 .reverso .sig { font-size: 1.25rem; font-weight: 700; margin: 4px 0 6px; }
@@ -110,7 +114,7 @@ def leer_palabras() -> pd.DataFrame:
         df = pd.DataFrame(columns=COLUMNAS)
     for col in COLUMNAS:
         if col not in df.columns:
-            df[col] = "no" if col == "aprendida" else ""
+            df[col] = {"aprendida": "no", "icono": "book-open"}.get(col, "")
     return df[COLUMNAS]
 
 
@@ -153,6 +157,19 @@ def marcar(df: pd.DataFrame, idx, valor: str) -> None:
 
 # ---------- Tarjetas ----------
 
+@st.cache_data
+def icono_svg(nombre: str) -> str:
+    """Lee un ícono de línea (Lucide) de la carpeta iconos/."""
+    archivo = CARPETA_ICONOS / f"{nombre}.svg"
+    if not re.fullmatch(r"[a-z0-9-]+", nombre or "") or not archivo.exists():
+        archivo = CARPETA_ICONOS / "book-open.svg"
+    return archivo.read_text(encoding="utf-8").replace('stroke-width="2"', 'stroke-width="1.5"')
+
+
+def iconos_disponibles() -> list[str]:
+    return sorted(p.stem for p in CARPETA_ICONOS.glob("*.svg"))
+
+
 def hablable(texto: str) -> str:
     """Quita lo que va entre paréntesis, p. ej. 'go up (went up)' -> 'go up, went up'."""
     return re.sub(r"\s*\((.*?)\)", r", \1", str(texto))
@@ -170,8 +187,9 @@ def tarjeta_html(idx, fila) -> str:
     onclick="hablar(event, {js(fila['palabra'])})">{ICONO}</button>
   <label for="t{idx}"><div class="cara-box">
     <div class="cara frente" style="background:{color}">
+      <div class="img">{icono_svg(fila['icono'] or 'book-open')}</div>
       <div class="pal">{e(fila['palabra'])}</div>
-      <div class="tip">👆 Toca para ver el significado</div>
+      <div class="tip">Toca para ver el significado</div>
     </div>
     <div class="cara reverso">
       <span class="cat">{e(fila['categoria'])} · {e(nombre)}</span>
@@ -257,6 +275,8 @@ with tab_agregar:
         )
         ejemplo = st.text_input("Frase de ejemplo en inglés *")
         ejemplo_es = st.text_input("Traducción del ejemplo al español *")
+        lista = iconos_disponibles()
+        icono = st.selectbox("Imagen de la tarjeta", lista, index=lista.index("book-open"))
         enviar = st.form_submit_button("Guardar palabra", type="primary")
     if enviar:
         campos = [palabra, significado, ejemplo, ejemplo_es]
@@ -268,7 +288,7 @@ with tab_agregar:
             nueva = pd.DataFrame([{
                 "palabra": palabra.strip(), "significado": significado.strip(),
                 "categoria": categoria, "ejemplo": ejemplo.strip(),
-                "ejemplo_es": ejemplo_es.strip(), "aprendida": "no",
+                "ejemplo_es": ejemplo_es.strip(), "aprendida": "no", "icono": icono,
             }])
             guardar_palabras(pd.concat([df, nueva], ignore_index=True))
             st.success(f"✅ “{palabra}” guardada.")
