@@ -2,6 +2,7 @@
 
 import base64
 import html
+import io
 import json
 import re
 from pathlib import Path
@@ -107,10 +108,39 @@ def github_configurado() -> bool:
         return False
 
 
+def _cabeceras() -> dict:
+    return {
+        "Authorization": f"Bearer {st.secrets['GITHUB_TOKEN']}",
+        "Accept": "application/vnd.github+json",
+    }
+
+
+def _url_github() -> str:
+    return f"https://api.github.com/repos/{st.secrets['GITHUB_REPO']}/contents/palabras.csv"
+
+
+@st.cache_data(ttl=30, show_spinner=False)
+def leer_csv_github() -> str:
+    """Trae la versión más reciente de palabras.csv desde GitHub (así el celular y la compu ven lo mismo)."""
+    r = requests.get(
+        _url_github(), timeout=15,
+        headers={**_cabeceras(), "Accept": "application/vnd.github.raw+json"},
+        params={"ref": st.secrets.get("GITHUB_BRANCH", "main")},
+    )
+    r.raise_for_status()
+    return r.text
+
+
 def leer_palabras() -> pd.DataFrame:
-    if ARCHIVO.exists():
+    df = None
+    if github_configurado():
+        try:
+            df = pd.read_csv(io.StringIO(leer_csv_github()), dtype=str).fillna("")
+        except Exception:  # noqa: BLE001
+            df = None
+    if df is None and ARCHIVO.exists():
         df = pd.read_csv(ARCHIVO, dtype=str).fillna("")
-    else:
+    if df is None:
         df = pd.DataFrame(columns=COLUMNAS)
     for col in COLUMNAS:
         if col not in df.columns:
@@ -120,14 +150,8 @@ def leer_palabras() -> pd.DataFrame:
 
 def guardar_en_github(contenido: str) -> None:
     """Sube palabras.csv al repositorio para que no se pierda al reiniciar la app."""
-    repo = st.secrets["GITHUB_REPO"]
     rama = st.secrets.get("GITHUB_BRANCH", "main")
-    url = f"https://api.github.com/repos/{repo}/contents/palabras.csv"
-    cabeceras = {
-        "Authorization": f"Bearer {st.secrets['GITHUB_TOKEN']}",
-        "Accept": "application/vnd.github+json",
-    }
-    actual = requests.get(url, headers=cabeceras, params={"ref": rama}, timeout=15)
+    actual = requests.get(_url_github(), headers=_cabeceras(), params={"ref": rama}, timeout=15)
     sha = actual.json().get("sha") if actual.status_code == 200 else None
     datos = {
         "message": "Actualizar palabras desde la app",
@@ -136,7 +160,8 @@ def guardar_en_github(contenido: str) -> None:
     }
     if sha:
         datos["sha"] = sha
-    requests.put(url, headers=cabeceras, json=datos, timeout=15).raise_for_status()
+    requests.put(_url_github(), headers=_cabeceras(), json=datos, timeout=15).raise_for_status()
+    leer_csv_github.clear()
 
 
 def guardar_palabras(df: pd.DataFrame) -> None:
@@ -146,12 +171,14 @@ def guardar_palabras(df: pd.DataFrame) -> None:
         try:
             guardar_en_github(contenido)
         except Exception as e:  # noqa: BLE001
-            st.error(f"No se pudo guardar en GitHub: {e}")
+            st.session_state.aviso = ("error", f"No se pudo guardar en GitHub: {e}")
 
 
 def marcar(df: pd.DataFrame, idx, valor: str) -> None:
     df.loc[idx, "aprendida"] = valor
     guardar_palabras(df)
+    if "aviso" not in st.session_state:
+        st.session_state.aviso = ("ok", "Guardado ✓" if github_configurado() else "Listo")
     st.rerun()
 
 
@@ -246,6 +273,14 @@ por_aprender = df[df["aprendida"] != "si"]
 ya_aprendidas = df[df["aprendida"] == "si"]
 
 st.title("📘 Mi vocabulario de inglés")
+if "aviso" in st.session_state:
+    tipo, texto = st.session_state.pop("aviso")
+    st.error(texto) if tipo == "error" else st.toast(texto)
+if not github_configurado():
+    st.warning(
+        "Tus cambios todavía no se guardan para siempre: se borran cuando la app se reinicia. "
+        "Para arreglarlo, conecta la app con GitHub (ver README).", icon="⚠️",
+    )
 c1, c2, c3 = st.columns(3)
 c1.metric("Por aprender", len(por_aprender))
 c2.metric("Aprendidas", len(ya_aprendidas))

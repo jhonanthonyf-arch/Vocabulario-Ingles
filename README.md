@@ -9,20 +9,21 @@ palabra, significado en español, categoría gramatical y una frase de ejemplo c
 
 Las palabras viven en `palabras.csv`.
 
-## Guardar palabras nuevas de forma permanente (opcional)
+## Guardar los cambios para siempre (palabras aprendidas y nuevas)
 
-En Streamlit Cloud, las palabras agregadas desde la app se pierden cuando la app se reinicia,
-a menos que la app pueda escribir en GitHub. Para eso, en la app de Streamlit Cloud ve a
-**Settings → Secrets** y pega:
+Streamlit Cloud borra los cambios cuando la app se reinicia. Para que se guarden en GitHub
+(y se vean igual en el celular y en la computadora):
+
+1. Crea un token en https://github.com/settings/personal-access-tokens/new
+   - Repository access: **Only select repositories** → `Vocabulario-Ingles`
+   - Permissions → Repository permissions → **Contents: Read and write**
+2. En share.streamlit.io, en tu app: **⋮ → Settings → Secrets**, pega y guarda:
 
 ```toml
-GITHUB_TOKEN = "tu_token_de_github"
-GITHUB_REPO = "tu_usuario/vocabulario-ingles"
+GITHUB_TOKEN = "github_pat_..."
+GITHUB_REPO = "jhonanthonyf-arch/Vocabulario-Ingles"
 GITHUB_BRANCH = "main"
 ```
-
-El token se crea en GitHub → Settings → Developer settings → Fine-grained tokens,
-solo para este repositorio, con permiso **Contents: Read and write**.
 
 ## Correr en tu computadora
 
