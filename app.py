@@ -325,7 +325,10 @@ ya_aprendidas = df[df["aprendida"] == "si"]
 st.title("📘 Mi vocabulario de inglés")
 if "aviso" in st.session_state:
     tipo, texto = st.session_state.pop("aviso")
-    st.error(texto) if tipo == "error" else st.toast(texto)
+    if tipo == "error":
+        st.error(texto)
+    else:
+        st.toast(texto)
 _cfg = config_github()
 _problema = _cfg["problema"] or probar_github(_cfg["token"], _cfg["repo"])
 if _problema:
