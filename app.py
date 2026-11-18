@@ -2,11 +2,14 @@
 
 import base64
 import html
+import json
+import re
 from pathlib import Path
 
 import pandas as pd
 import requests
 import streamlit as st
+import streamlit.components.v1 as components
 
 ARCHIVO = Path(__file__).parent / "palabras.csv"
 COLUMNAS = ["palabra", "significado", "categoria", "ejemplo", "ejemplo_es", "aprendida"]
@@ -30,7 +33,14 @@ st.set_page_config(page_title="Mi vocabulario de inglés", page_icon="📘", lay
 
 ESTILO = """
 <style>
-.flip { perspective: 1000px; height: 230px; margin-bottom: 6px; }
+body { margin: 0; padding: 4px; }
+.flip { perspective: 1000px; height: 230px; position: relative; }
+.voz { position: absolute; top: 8px; right: 8px; z-index: 5; border: none;
+  background: rgba(255,255,255,.9); border-radius: 999px; width: 38px; height: 38px;
+  font-size: 18px; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+.voz:active { transform: scale(.92); }
+.voz-ej { border: 1px solid #d1d5db; background: #fff; border-radius: 999px;
+  padding: 2px 10px; font-size: .8rem; cursor: pointer; margin-top: 8px; }
 .flip input { display: none; }
 .flip label { display: block; width: 100%; height: 100%; cursor: pointer; }
 .cara-box { position: relative; width: 100%; height: 100%;
@@ -52,6 +62,19 @@ ESTILO = """
 .reverso .en { font-style: italic; margin-top: 12px; font-size: .95rem; }
 .reverso .es { color: #6b7280; font-size: .9rem; margin-top: 4px; }
 </style>
+<script>
+function hablar(ev, texto) {
+  ev.preventDefault(); ev.stopPropagation();
+  const synth = window.speechSynthesis || window.parent.speechSynthesis;
+  if (!synth) { alert("Tu navegador no permite reproducir audio."); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang = "en-US"; u.rate = 0.85;
+  const v = synth.getVoices().find(x => x.lang && x.lang.startsWith("en"));
+  if (v) u.voice = v;
+  synth.speak(u);
+}
+</script>
 """
 
 
@@ -114,23 +137,32 @@ def marcar(df: pd.DataFrame, idx, valor: str) -> None:
 
 # ---------- Tarjetas ----------
 
+def hablable(texto: str) -> str:
+    """Quita lo que va entre paréntesis, p. ej. 'go up (went up)' -> 'go up, went up'."""
+    return re.sub(r"\s*\((.*?)\)", r", \1", str(texto))
+
+
 def tarjeta_html(idx, fila) -> str:
     e = lambda t: html.escape(str(t))  # noqa: E731
+    js = lambda t: html.escape(json.dumps(hablable(t)))  # noqa: E731
     color = COLOR.get(fila["categoria"], "#475569")
     nombre = NOMBRE_ES.get(fila["categoria"], fila["categoria"])
     return f"""
 <div class="flip" style="--c:{color}">
+  <button class="voz" title="Escuchar pronunciación"
+    onclick="hablar(event, {js(fila['palabra'])})">🔊</button>
   <input type="checkbox" id="t{idx}">
   <label for="t{idx}"><div class="cara-box">
     <div class="cara frente" style="background:{color}">
       <div class="pal">{e(fila['palabra'])}</div>
-      <div class="tip">👆 Toca para ver el significado</div>
+      <div class="tip">👆 Toca para ver el significado<br>🔊 Toca la bocina para escuchar</div>
     </div>
     <div class="cara reverso">
       <span class="cat">{e(fila['categoria'])} · {e(nombre)}</span>
       <div class="sig">{e(fila['significado'])}</div>
       <div class="en">“{e(fila['ejemplo'])}”</div>
       <div class="es">{e(fila['ejemplo_es'])}</div>
+      <button class="voz-ej" onclick="hablar(event, {js(fila['ejemplo'])})">🔊 Escuchar ejemplo</button>
     </div>
   </div></label>
 </div>"""
@@ -146,7 +178,7 @@ def mostrar_tarjetas(df: pd.DataFrame, vista: pd.DataFrame, aprendidas: bool) ->
         cols = st.columns(POR_FILA)
         for col, (idx, fila) in zip(cols, filas[i:i + POR_FILA]):
             with col:
-                st.html(ESTILO + tarjeta_html(idx, fila))
+                components.html(ESTILO + tarjeta_html(idx, fila), height=245)
                 if aprendidas:
                     if st.button("↩️ Volver a estudiar", key=f"v{idx}", width="stretch"):
                         marcar(df, idx, "no")

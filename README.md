@@ -3,7 +3,7 @@
 App de Streamlit para guardar las palabras de inglés que aprendo (finanzas y negocios):
 palabra, significado en español, categoría gramatical y una frase de ejemplo con su traducción.
 
-- **Por aprender**: tarjetas que se voltean al tocarlas (frente: palabra; reverso: significado, categoría, ejemplo y su traducción). Botón ✅ Aprendida.
+- **Por aprender**: tarjetas que se voltean al tocarlas (frente: palabra; reverso: significado, categoría, ejemplo y su traducción). Botón 🔊 para escuchar la pronunciación de la palabra y del ejemplo. Botón ✅ Aprendida.
 - **Aprendidas**: carpeta con las palabras que ya sabes (puedes devolverlas a estudiar).
 - **Agregar palabra**: formulario para sumar palabras nuevas.
 
