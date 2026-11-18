@@ -31,21 +31,32 @@ POR_FILA = 3
 
 st.set_page_config(page_title="Mi vocabulario de inglés", page_icon="📘", layout="wide")
 
+ICONO = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" '
+         'stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/>'
+         '<path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>')
+
 ESTILO = """
 <style>
 body { margin: 0; padding: 4px; }
 .flip { perspective: 1000px; height: 230px; position: relative; }
-.voz { position: absolute; top: 8px; right: 8px; z-index: 5; border: none;
-  background: rgba(255,255,255,.9); border-radius: 999px; width: 38px; height: 38px;
-  font-size: 18px; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+.voz { position: absolute; top: 10px; right: 10px; z-index: 5;
+  width: 32px; height: 32px; padding: 0; border-radius: 999px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: 1.5px solid rgba(255,255,255,.7); color: #fff;
+  transition: background .2s; }
+.voz:hover { background: rgba(255,255,255,.15); }
 .voz:active { transform: scale(.92); }
-.voz-ej { border: 1px solid #d1d5db; background: #fff; border-radius: 999px;
-  padding: 2px 10px; font-size: .8rem; cursor: pointer; margin-top: 8px; }
+.flip input:checked ~ .voz { color: var(--c); border-color: var(--c); }
+.voz svg, .voz-ej svg { width: 16px; height: 16px; }
+.voz-ej { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
+  background: transparent; border: 1px solid #d1d5db; color: #4b5563;
+  border-radius: 999px; padding: 3px 10px; font-size: .78rem; cursor: pointer; }
+.voz-ej:hover { border-color: var(--c); color: var(--c); }
 .flip input { display: none; }
 .flip label { display: block; width: 100%; height: 100%; cursor: pointer; }
 .cara-box { position: relative; width: 100%; height: 100%;
   transition: transform .6s; transform-style: preserve-3d; }
-.flip input:checked + label .cara-box { transform: rotateY(180deg); }
+.flip input:checked ~ label .cara-box { transform: rotateY(180deg); }
 .cara { position: absolute; inset: 0; backface-visibility: hidden;
   -webkit-backface-visibility: hidden; border-radius: 16px; padding: 18px;
   box-sizing: border-box; display: flex; flex-direction: column;
@@ -69,9 +80,14 @@ function hablar(ev, texto) {
   if (!synth) { alert("Tu navegador no permite reproducir audio."); return; }
   synth.cancel();
   const u = new SpeechSynthesisUtterance(texto);
-  u.lang = "en-US"; u.rate = 0.85;
-  const v = synth.getVoices().find(x => x.lang && x.lang.startsWith("en"));
-  if (v) u.voice = v;
+  u.lang = "en-GB"; u.rate = 0.85;
+  // Preferir una voz británica; si el dispositivo no tiene, usar otra en inglés.
+  const voces = synth.getVoices();
+  const norm = x => (x.lang || "").replace("_", "-").toLowerCase();
+  const v = voces.find(x => norm(x) === "en-gb")
+         || voces.find(x => /british|uk|england/i.test(x.name))
+         || voces.find(x => norm(x).startsWith("en"));
+  try { if (v) u.voice = v; } catch (e) {}
   synth.speak(u);
 }
 </script>
@@ -149,20 +165,20 @@ def tarjeta_html(idx, fila) -> str:
     nombre = NOMBRE_ES.get(fila["categoria"], fila["categoria"])
     return f"""
 <div class="flip" style="--c:{color}">
-  <button class="voz" title="Escuchar pronunciación"
-    onclick="hablar(event, {js(fila['palabra'])})">🔊</button>
   <input type="checkbox" id="t{idx}">
+  <button class="voz" title="Escuchar pronunciación"
+    onclick="hablar(event, {js(fila['palabra'])})">{ICONO}</button>
   <label for="t{idx}"><div class="cara-box">
     <div class="cara frente" style="background:{color}">
       <div class="pal">{e(fila['palabra'])}</div>
-      <div class="tip">👆 Toca para ver el significado<br>🔊 Toca la bocina para escuchar</div>
+      <div class="tip">👆 Toca para ver el significado</div>
     </div>
     <div class="cara reverso">
       <span class="cat">{e(fila['categoria'])} · {e(nombre)}</span>
       <div class="sig">{e(fila['significado'])}</div>
       <div class="en">“{e(fila['ejemplo'])}”</div>
       <div class="es">{e(fila['ejemplo_es'])}</div>
-      <button class="voz-ej" onclick="hablar(event, {js(fila['ejemplo'])})">🔊 Escuchar ejemplo</button>
+      <button class="voz-ej" onclick="hablar(event, {js(fila['ejemplo'])})">{ICONO} Escuchar ejemplo</button>
     </div>
   </div></label>
 </div>"""
