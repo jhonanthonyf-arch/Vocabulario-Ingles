@@ -11,7 +11,7 @@ earnings,ganancias / utilidades,noun,Earnings grew 5% compared to last quarter.,
 shareholders,accionistas,noun,The shareholders will receive a dividend this year.,Los accionistas recibirán un dividendo este año.,no,users
 overhead,gastos generales,noun,We need to reduce overhead in the office.,Necesitamos reducir los gastos generales en la oficina.,no,lightbulb
 accounts receivable,cuentas por cobrar,noun,Accounts receivable went up because clients pay late.,Las cuentas por cobrar subieron porque los clientes pagan tarde.,no,hand-coins
-accounts payable,cuentas por pagar,noun,We pay our accounts payable every 30 days.,Pagamos nuestras cuentas por pagar cada 30 días.,no,receipt-text
+accounts payable,cuentas por pagar,noun,We pay our accounts payable every 30 days.,Pagamos nuestras cuentas por pagar cada 30 días.,si,receipt-text
 break-even point,punto de equilibrio,noun,We will reach the break-even point in June.,Llegaremos al punto de equilibrio en junio.,no,target
 write-off,castigo / cancelación contable,noun,The company recorded a write-off of bad debt.,La empresa registró un castigo de deudas incobrables.,no,eraser
 revenue,ingresos (ventas totales),noun,Revenue was 2 million dollars last year.,Los ingresos fueron 2 millones de dólares el año pasado.,no,banknote
