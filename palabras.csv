@@ -1,6 +1,6 @@
 palabra,significado,categoria,ejemplo,ejemplo_es,aprendida,icono
 cash flow,flujo de caja,noun,Our cash flow improved this quarter.,Nuestro flujo de caja mejoró este trimestre.,no,arrow-down-up
-budget,presupuesto,noun,We need to prepare the budget for next year.,Necesitamos preparar el presupuesto para el próximo año.,no,wallet
+budget,presupuesto,noun,We need to prepare the budget for next year.,Necesitamos preparar el presupuesto para el próximo año.,si,wallet
 forecast,pronóstico / proyección,noun,The sales forecast for March is too optimistic.,El pronóstico de ventas para marzo es demasiado optimista.,no,chart-line
 debt,deuda,noun,The company paid part of its debt in October.,La empresa pagó parte de su deuda en octubre.,no,credit-card
 assets,activos,noun,Total assets increased by 10% this year.,Los activos totales aumentaron 10% este año.,no,building-2
