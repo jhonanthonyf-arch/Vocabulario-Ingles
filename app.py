@@ -101,22 +101,72 @@ function hablar(ev, texto) {
 
 # ---------- Guardar y leer ----------
 
-def github_configurado() -> bool:
+REPO_POR_DEFECTO = "jhonanthonyf-arch/Vocabulario-Ingles"
+
+
+def _buscar(secretos, nombres):
+    """Busca una clave sin importar mayúsculas, también dentro de secciones [algo]."""
+    for k, v in secretos.items():
+        if hasattr(v, "items"):
+            r = _buscar(v, nombres)
+            if r:
+                return r
+        elif k.strip().lower() in nombres and str(v).strip():
+            return str(v).strip().strip('"').strip("“”").strip()
+    return None
+
+
+def config_github() -> dict:
+    """Lee los Secrets de forma tolerante. Devuelve token, repo, rama y un 'problema' si lo hay."""
     try:
-        return "GITHUB_TOKEN" in st.secrets and "GITHUB_REPO" in st.secrets
-    except Exception:
-        return False
+        secretos = dict(st.secrets)
+    except Exception as e:  # noqa: BLE001
+        texto = str(e)
+        if "No secrets" in texto or "not found" in texto.lower():
+            return {"problema": "La app no encuentra ningún Secret. Revisa que lo guardaste con Save en la app correcta."}
+        return {"problema": "Los Secrets tienen un error de formato (revisa que las comillas sean rectas \" y no “ ”)."}
+    token = _buscar(secretos, {"github_token", "token", "github_pat", "gh_token"})
+    if not token:
+        return {"problema": "Falta GITHUB_TOKEN en los Secrets."}
+    repo = _buscar(secretos, {"github_repo", "repo"}) or REPO_POR_DEFECTO
+    repo = repo.replace("https://github.com/", "").strip("/")
+    rama = _buscar(secretos, {"github_branch", "branch"}) or "main"
+    return {"token": token, "repo": repo, "rama": rama, "problema": None}
+
+
+def github_configurado() -> bool:
+    cfg = config_github()
+    return cfg["problema"] is None and probar_github(cfg["token"], cfg["repo"]) is None
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def probar_github(token: str, repo: str) -> str | None:
+    """Prueba el token. Devuelve None si todo está bien, o un mensaje simple del problema."""
+    try:
+        r = requests.get(f"https://api.github.com/repos/{repo}", timeout=15,
+                         headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"})
+    except Exception as e:  # noqa: BLE001
+        return f"No se pudo conectar con GitHub ({e})."
+    if r.status_code == 401:
+        return "GitHub dice que el token no es válido o venció. Crea uno nuevo y pégalo en Secrets."
+    if r.status_code == 404:
+        return f"El token no tiene acceso al repositorio {repo}. Al crear el token elige ese repositorio."
+    if r.status_code != 200:
+        return f"GitHub respondió con error {r.status_code}."
+    if not r.json().get("permissions", {}).get("push", False):
+        return "El token puede leer pero no guardar. En Permissions → Contents elige 'Read and write'."
+    return None
 
 
 def _cabeceras() -> dict:
     return {
-        "Authorization": f"Bearer {st.secrets['GITHUB_TOKEN']}",
+        "Authorization": f"Bearer {config_github()['token']}",
         "Accept": "application/vnd.github+json",
     }
 
 
 def _url_github() -> str:
-    return f"https://api.github.com/repos/{st.secrets['GITHUB_REPO']}/contents/palabras.csv"
+    return f"https://api.github.com/repos/{config_github()['repo']}/contents/palabras.csv"
 
 
 @st.cache_data(ttl=30, show_spinner=False)
@@ -125,7 +175,7 @@ def leer_csv_github() -> str:
     r = requests.get(
         _url_github(), timeout=15,
         headers={**_cabeceras(), "Accept": "application/vnd.github.raw+json"},
-        params={"ref": st.secrets.get("GITHUB_BRANCH", "main")},
+        params={"ref": config_github()["rama"]},
     )
     r.raise_for_status()
     return r.text
@@ -150,7 +200,7 @@ def leer_palabras() -> pd.DataFrame:
 
 def guardar_en_github(contenido: str) -> None:
     """Sube palabras.csv al repositorio para que no se pierda al reiniciar la app."""
-    rama = st.secrets.get("GITHUB_BRANCH", "main")
+    rama = config_github()["rama"]
     actual = requests.get(_url_github(), headers=_cabeceras(), params={"ref": rama}, timeout=15)
     sha = actual.json().get("sha") if actual.status_code == 200 else None
     datos = {
@@ -276,10 +326,11 @@ st.title("📘 Mi vocabulario de inglés")
 if "aviso" in st.session_state:
     tipo, texto = st.session_state.pop("aviso")
     st.error(texto) if tipo == "error" else st.toast(texto)
-if not github_configurado():
+_cfg = config_github()
+_problema = _cfg["problema"] or probar_github(_cfg["token"], _cfg["repo"])
+if _problema:
     st.warning(
-        "Tus cambios todavía no se guardan para siempre: se borran cuando la app se reinicia. "
-        "Para arreglarlo, conecta la app con GitHub (ver README).", icon="⚠️",
+        "Tus cambios todavía no se guardan para siempre.  \n**Motivo:** " + _problema, icon="⚠️",
     )
 c1, c2, c3 = st.columns(3)
 c1.metric("Por aprender", len(por_aprender))
