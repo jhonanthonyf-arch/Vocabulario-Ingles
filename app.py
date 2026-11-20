@@ -79,21 +79,24 @@ body { margin: 0; padding: 4px; }
 .reverso .es { color: #6b7280; font-size: .9rem; margin-top: 4px; }
 </style>
 <script>
-function hablar(ev, texto) {
+function hablar(ev, ...textos) {
   ev.preventDefault(); ev.stopPropagation();
   const synth = window.speechSynthesis || window.parent.speechSynthesis;
   if (!synth) { alert("Tu navegador no permite reproducir audio."); return; }
   synth.cancel();
-  const u = new SpeechSynthesisUtterance(texto);
-  u.lang = "en-GB"; u.rate = 0.85;
   // Preferir una voz británica; si el dispositivo no tiene, usar otra en inglés.
   const voces = synth.getVoices();
   const norm = x => (x.lang || "").replace("_", "-").toLowerCase();
   const v = voces.find(x => norm(x) === "en-gb")
          || voces.find(x => /british|uk|england/i.test(x.name))
          || voces.find(x => norm(x).startsWith("en"));
-  try { if (v) u.voice = v; } catch (e) {}
-  synth.speak(u);
+  // Se dicen en orden (primero la palabra, luego el ejemplo).
+  for (const texto of textos) {
+    const u = new SpeechSynthesisUtterance(texto);
+    u.lang = "en-GB"; u.rate = 0.85;
+    try { if (v) u.voice = v; } catch (e) {}
+    synth.speak(u);
+  }
 }
 </script>
 """
@@ -260,8 +263,8 @@ def tarjeta_html(idx, fila) -> str:
     return f"""
 <div class="flip" style="--c:{color}">
   <input type="checkbox" id="t{idx}">
-  <button class="voz" title="Escuchar pronunciación"
-    onclick="hablar(event, {js(fila['palabra'])})">{ICONO}</button>
+  <button class="voz" title="Escuchar la palabra y el ejemplo"
+    onclick="hablar(event, {js(fila['palabra'])}, {js(fila['ejemplo'])})">{ICONO}</button>
   <label for="t{idx}"><div class="cara-box">
     <div class="cara frente" style="background:{color}">
       <div class="img">{icono_svg(fila['icono'] or 'book-open')}</div>
