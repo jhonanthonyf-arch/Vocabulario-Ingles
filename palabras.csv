@@ -43,4 +43,4 @@ quote,cotización,noun,The supplier sent us a quote for the new laptops.,El prov
 finance area,área de finanzas,noun,I work in the finance area of the company.,Trabajo en el área de finanzas de la empresa.,no,briefcase-business
 owe,deber (dinero),verb,"Our clients owe us $50,000.","Nuestros clientes nos deben $50,000.",no,hand-coins
 review,revisar (con detalle),verb,The budget is reviewed every month.,El presupuesto se revisa cada mes.,no,eye
-check,revisar / verificar,verb,My manager checks the report every Monday.,Mi gerente revisa el reporte cada lunes.,no,clipboard-check
+check,revisar / verificar,verb,My manager checks the report every Monday.,Mi gerente revisa el reporte cada lunes.,si,clipboard-check
