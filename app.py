@@ -33,6 +33,42 @@ POR_FILA = 3
 
 st.set_page_config(page_title="Mi vocabulario de inglés", page_icon="📘", layout="wide")
 
+# Fondo con degradado suave verde → azul y detalles minimalistas.
+st.markdown("""
+<style>
+.stApp {
+  background: linear-gradient(135deg, #d9f7ec 0%, #cdeff3 45%, #d6e6fb 100%);
+  background-attachment: fixed;
+}
+[data-testid="stHeader"] { background: transparent; }
+[data-testid="stMainBlockContainer"], .block-container { max-width: 1150px; }
+h1 { color: #0f3d4a; letter-spacing: -0.5px; }
+[data-testid="stMetric"] {
+  background: rgba(255,255,255,.65); border-radius: 14px; padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,.9); box-shadow: 0 1px 6px rgba(15,61,74,.06);
+}
+.resumen { display: flex; gap: 12px; margin: 4px 0 18px; }
+.resumen div { flex: 1; background: rgba(255,255,255,.65); border: 1px solid rgba(255,255,255,.9);
+  border-radius: 14px; padding: 10px 14px; box-shadow: 0 1px 6px rgba(15,61,74,.06); }
+.resumen b { display: block; font-size: 1.6rem; color: #0f3d4a; line-height: 1.1; }
+.resumen span { font-size: .8rem; color: #4b6b74; }
+.stTabs [data-baseweb="tab-list"] { gap: 6px; }
+.stTabs [data-baseweb="tab"] {
+  background: rgba(255,255,255,.55); border-radius: 999px; padding: 6px 14px;
+}
+.stTabs [aria-selected="true"] { background: #ffffff; }
+.stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"] { display: none; }
+.stButton > button {
+  background: rgba(255,255,255,.75); border: 1px solid rgba(15,118,110,.25);
+  border-radius: 999px; color: #0f3d4a;
+}
+.stButton > button:hover { border-color: #0f766e; color: #0f766e; background: #fff; }
+[data-baseweb="select"] > div, [data-testid="stTextInput"] input {
+  background: rgba(255,255,255,.8) !important; border-radius: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 ICONO = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" '
          'stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/>'
          '<path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>')
@@ -343,10 +379,14 @@ if _problema:
     st.warning(
         "Tus cambios todavía no se guardan para siempre.  \n**Motivo:** " + _problema, icon="⚠️",
     )
-c1, c2, c3 = st.columns(3)
-c1.metric("Por aprender", len(por_aprender))
-c2.metric("Aprendidas", len(ya_aprendidas))
-c3.metric("Total", len(df))
+st.markdown(
+    f"""<div class="resumen">
+      <div><b>{len(por_aprender)}</b><span>Por aprender</span></div>
+      <div><b>{len(ya_aprendidas)}</b><span>Aprendidas</span></div>
+      <div><b>{len(df)}</b><span>Total</span></div>
+    </div>""",
+    unsafe_allow_html=True,
+)
 
 tab_estudiar, tab_aprendidas, tab_agregar = st.tabs(
     [f"📚 Por aprender ({len(por_aprender)})",
