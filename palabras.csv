@@ -44,3 +44,12 @@ finance area,área de finanzas,noun,I work in the finance area of the company.,T
 owe,deber (dinero),verb,"Our clients owe us $50,000.","Nuestros clientes nos deben $50,000.",no,hand-coins
 review,revisar (con detalle),verb,The budget is reviewed every month.,El presupuesto se revisa cada mes.,no,eye
 check,revisar / verificar,verb,My manager checks the report every Monday.,Mi gerente revisa el reporte cada lunes.,si,clipboard-check
+approve,aprobar,verb,The budget was approved by the CFO.,El presupuesto fue aprobado por el director financiero.,no,stamp
+record,registrar,verb,All costs are recorded in the system.,Todos los costos se registran en el sistema.,no,notebook-pen
+payment,pago,noun,Three payments were made last month.,Se hicieron tres pagos el mes pasado.,no,circle-dollar-sign
+statement,estado financiero / reporte,noun,The cash flow statement is sent every Friday.,El estado de flujo de caja se envía cada viernes.,no,file-chart-column
+CFO,director financiero (Chief Financial Officer),noun,The CFO approved the new budget.,El director financiero aprobó el nuevo presupuesto.,no,user-round-check
+increase,aumentar,verb,We want to increase our sales by 10%.,Queremos aumentar nuestras ventas en 10%.,no,arrow-up
+however,sin embargo,connector,"Sales went up. However, profit went down.","Las ventas subieron. Sin embargo, la utilidad bajó.",no,arrow-left-right
+due,que vence / por pagar,adjective,The invoice is due Friday.,La factura vence el viernes.,no,calendar-clock
+went up by,subió en (una cantidad),expression,Revenue went up by 12%.,Los ingresos subieron en 12%.,no,move-up-right
