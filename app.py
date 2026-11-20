@@ -98,6 +98,11 @@ function hablar(ev, ...textos) {
     synth.speak(u);
   }
 }
+// Frente de la tarjeta: lee la palabra. Tarjeta volteada: lee el ejemplo.
+function hablarTarjeta(ev, boton, palabra, ejemplo) {
+  const volteada = boton.parentElement.querySelector("input").checked;
+  hablar(ev, volteada ? ejemplo : palabra);
+}
 </script>
 """
 
@@ -263,8 +268,8 @@ def tarjeta_html(idx, fila) -> str:
     return f"""
 <div class="flip" style="--c:{color}">
   <input type="checkbox" id="t{idx}">
-  <button class="voz" title="Escuchar la palabra y el ejemplo"
-    onclick="hablar(event, {js(fila['palabra'])}, {js(fila['ejemplo'])})">{ICONO}</button>
+  <button class="voz" title="Escuchar (frente: la palabra · reverso: el ejemplo)"
+    onclick="hablarTarjeta(event, this, {js(fila['palabra'])}, {js(fila['ejemplo'])})">{ICONO}</button>
   <label for="t{idx}"><div class="cara-box">
     <div class="cara frente" style="background:{color}">
       <div class="img">{icono_svg(fila['icono'] or 'book-open')}</div>
