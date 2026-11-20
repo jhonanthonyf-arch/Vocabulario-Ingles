@@ -8,7 +8,7 @@ liabilities,pasivos,noun,Current liabilities are higher than last year.,Los pasi
 balance sheet,balance general,noun,The balance sheet shows assets and liabilities.,El balance general muestra los activos y los pasivos.,si,file-spreadsheet
 income statement,estado de resultados,noun,I prepare the income statement every month.,Preparo el estado de resultados cada mes.,no,file-text
 earnings,ganancias / utilidades,noun,Earnings grew 5% compared to last quarter.,Las utilidades crecieron 5% comparado con el trimestre pasado.,si,coins
-shareholders,accionistas,noun,The shareholders will receive a dividend this year.,Los accionistas recibirán un dividendo este año.,no,users
+shareholders,accionistas,noun,The shareholders will receive a dividend this year.,Los accionistas recibirán un dividendo este año.,si,users
 overhead,gastos generales,noun,We need to reduce overhead in the office.,Necesitamos reducir los gastos generales en la oficina.,no,lightbulb
 accounts receivable,cuentas por cobrar,noun,Accounts receivable went up because clients pay late.,Las cuentas por cobrar subieron porque los clientes pagan tarde.,no,hand-coins
 accounts payable,cuentas por pagar,noun,We pay our accounts payable every 30 days.,Pagamos nuestras cuentas por pagar cada 30 días.,si,receipt-text
