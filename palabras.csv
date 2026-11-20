@@ -37,7 +37,7 @@ suppliers,proveedores,noun,We pay our suppliers every 30 days.,Les pagamos a nue
 quarter,trimestre,noun,Revenue went up in the third quarter.,Los ingresos subieron en el tercer trimestre.,no,calendar
 look for,buscar,phrasal verb,We are looking for a new financial analyst.,Estamos buscando un nuevo analista financiero.,no,search
 make (made),generar / obtener (dinero),verb,The company made 2 million dollars in revenue.,La empresa generó 2 millones de dólares en ingresos.,no,factory
-goal,meta / objetivo,noun,Our goal is to reduce costs by 10% this year.,Nuestra meta es reducir los costos en 10% este año.,no,goal
+goal,meta / objetivo,noun,Our goal is to reduce costs by 10% this year.,Nuestra meta es reducir los costos en 10% este año.,si,goal
 target,meta / objetivo (con número),noun,We reached our sales target in October.,Alcanzamos nuestra meta de ventas en octubre.,no,crosshair
 quote,cotización,noun,The supplier sent us a quote for the new laptops.,El proveedor nos envió una cotización para las laptops nuevas.,no,file-pen-line
 finance area,área de finanzas,noun,I work in the finance area of the company.,Trabajo en el área de finanzas de la empresa.,si,briefcase-business
